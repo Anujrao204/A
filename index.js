@@ -10,9 +10,9 @@ const session = require('express-session');
 const crypto = require('crypto');
 require('dotenv').config();
 
+
 const app = express();
 const port=4000
-
 
 //Database connection
 const db=process.env.URL
@@ -46,6 +46,11 @@ app.get('/signup.html',(req,res)=>{
 app.post('/signup/done',async(req,res)=>{
     try {
         const { name, email, password } = req.body;
+        const user = await detailsModel.findOne({ email });
+        if(user){
+          res.redirect('/')
+        }
+        else{
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
         // Create a new user document using the detailsModel
@@ -80,6 +85,7 @@ app.post('/signup/done',async(req,res)=>{
             }
           });
         res.redirect('/otp');
+        }
 
       } catch (error) {
         console.error('Error:', error);
